@@ -38,27 +38,6 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 
-proxy-groups:
-  - name: 🌍 AUTO
-    type: url-test
-    use:
-      - BLACK
-      - WHITE
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-
-  - name: 🎮 GAME
-    type: select
-    use:
-      - BLACK
-      - WHITE
-
-  - name: 🤖 CHATGPT
-    type: select
-    use:
-      - WHITE
-      - BLACK
-
 rules:
   - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT

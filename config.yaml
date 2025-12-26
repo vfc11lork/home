@@ -1,57 +1,23 @@
-
 mixed-port: 7890
 allow-lan: true
 mode: rule
-log-level: warning
-external-controller: 127.0.0.1:9090
-
-dns:
-  enable: true
-  listen: 0.0.0.0:1053
-  ipv6: false
-  respect-rules: true
-  default-nameserver:
-    - 1.1.1.1
-    - 8.8.8.8
-  nameserver:
-    - https://1.1.1.1/dns-query
-    - https://8.8.8.8/dns-query
+log-level: info
 
 proxy-providers:
-  BLACK:
+  black:
     type: http
-    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/BLACK_VLESS_RUS.txt
+    url: https://raw.githubusercontent.com/vfc11lork/home/main/BLACK_VLESS_RUS.txt
     interval: 3600
-    path: ./providers/black.yaml
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
       interval: 300
 
-  WHITE:
-    type: http
-    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
-    interval: 3600
-    path: ./providers/white.yaml
-    health-check:
-      enable: true
-      url: http://www.gstatic.com/generate_204
-      interval: 300
-
-      proxy-groups:
-  - name: AUTO
+proxy-groups:
+  - name: BLACK
     type: select
     use:
-      - BLACK
+      - black
 
 rules:
-  - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
-  - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
-  - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
-  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
-
-  - DOMAIN-SUFFIX,roblox.com,🎮 GAME
-  - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAME
-
-  - GEOIP,RU,DIRECT
-  - MATCH,🌍 AUTO
+  - MATCH,BLACK

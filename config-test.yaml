@@ -1,3 +1,6 @@
+#################################
+# BASIC
+#################################
 port: 7890
 socks-port: 7891
 mixed-port: 7893
@@ -9,7 +12,7 @@ ipv6: false
 external-controller: 127.0.0.1:9090
 
 #################################
-# DNS (нейтральный, стабильный)
+# DNS
 #################################
 dns:
   enable: true
@@ -61,96 +64,95 @@ proxy-providers:
       interval: 600
 
 #################################
-# TEST GROUPS — ПО ГОРОДАМ
+# PROXY GROUPS — TEST
 #################################
+proxy-groups:
 
-# 🇩🇪 Германия — Frankfurt
-- name: "🎮 TEST-DE-FRA"
-  type: url-test
-  use:
-    - BLACK
-    - WHITE
-  filter: "(Frankfurt|FRA)"
-  url: http://www.gstatic.com/generate_204
-  interval: 120
-  tolerance: 30
-  lazy: false
+  # 🇩🇪 Germany — Frankfurt (baseline)
+  - name: "🎮 TEST-DE-FRA"
+    type: url-test
+    use:
+      - BLACK
+      - WHITE
+    filter: "(Frankfurt|FRA)"
+    url: http://www.gstatic.com/generate_204
+    interval: 120
+    tolerance: 30
+    lazy: false
+    disable-udp: false
 
-# 🇵🇱 Польша — Warsaw
-- name: "🎮 TEST-PL-WAW"
-  type: url-test
-  use:
-    - BLACK
-    - WHITE
-  filter: "(Warsaw|WAW)"
-  url: http://www.gstatic.com/generate_204
-  interval: 120
-  tolerance: 30
-  lazy: false
+  # 🇵🇱 Poland — Warsaw (short route)
+  - name: "🎮 TEST-PL-WAW"
+    type: url-test
+    use:
+      - BLACK
+      - WHITE
+    filter: "(Warsaw|WAW)"
+    url: http://www.gstatic.com/generate_204
+    interval: 120
+    tolerance: 30
+    lazy: false
+    disable-udp: false
 
-# 🇳🇱 Нидерланды — Amsterdam
-- name: "🎮 TEST-NL-AMS"
-  type: url-test
-  use:
-    - BLACK
-    - WHITE
-  filter: "(Amsterdam|AMS)"
-  url: http://www.gstatic.com/generate_204
-  interval: 120
-  tolerance: 40
-  lazy: false
+  # 🇳🇱 Netherlands — Amsterdam (IX test)
+  - name: "🎮 TEST-NL-AMS"
+    type: url-test
+    use:
+      - BLACK
+      - WHITE
+    filter: "(Amsterdam|AMS)"
+    url: http://www.gstatic.com/generate_204
+    interval: 120
+    tolerance: 40
+    lazy: false
+    disable-udp: false
 
-# 🇫🇮 Финляндия — Helsinki (короткий список)
-- name: "🎮 TEST-FI-HEL"
-  type: url-test
-  use:
-    - FINLAND
-  filter: "(Helsinki|HEL-0[1-9]|HEL-[1-9])"
-  url: http://www.gstatic.com/generate_204
-  interval: 180
-  tolerance: 40
-  lazy: false
+  # 🇫🇮 Finland — Helsinki (near route)
+  - name: "🎮 TEST-FI-HEL"
+    type: url-test
+    use:
+      - FINLAND
+    filter: "(Helsinki|HEL-0[1-9]|HEL-[1-9])"
+    url: http://www.gstatic.com/generate_204
+    interval: 180
+    tolerance: 40
+    lazy: false
+    disable-udp: false
 
-#################################
-# ПРОТОКОЛЬНЫЕ ТЕСТЫ (SS / HY)
-#################################
+  # 🧪 Shadowsocks only
+  - name: "🧪 TEST-SS"
+    type: url-test
+    use:
+      - BLACK
+      - WHITE
+    filter: "(SS|Shadowsocks)"
+    url: http://www.gstatic.com/generate_204
+    interval: 180
+    tolerance: 50
+    lazy: false
 
-# Shadowsocks (если есть в списках)
-- name: "🧪 TEST-SS"
-  type: url-test
-  use:
-    - BLACK
-    - WHITE
-  filter: "(SS|Shadowsocks)"
-  url: http://www.gstatic.com/generate_204
-  interval: 180
-  tolerance: 50
-  lazy: false
+  # 🧪 Hysteria / HY2 / HY3
+  - name: "🧪 TEST-HY"
+    type: url-test
+    use:
+      - BLACK
+      - WHITE
+    filter: "(Hysteria|HY2|HY3)"
+    url: http://www.gstatic.com/generate_204
+    interval: 180
+    tolerance: 60
+    lazy: false
 
-# Hysteria2 / HY3
-- name: "🧪 TEST-HY"
-  type: url-test
-  use:
-    - BLACK
-    - WHITE
-  filter: "(Hysteria|HY2|HY3)"
-  url: http://www.gstatic.com/generate_204
-  interval: 180
-  tolerance: 60
-  lazy: false
-
-#################################
-# MASTER TEST SELECTOR
-#################################
-- name: "🎮 GAME-TEST"
-  type: select
-  proxies:
-    - 🎮 TEST-DE-FRA
-    - 🎮 TEST-PL-WAW
-    - 🎮 TEST-NL-AMS
-    - 🎮 TEST-FI-HEL
-    - 🧪 TEST-SS
-    - 🧪 TEST-HY
+  # 🎮 MASTER TEST SELECTOR
+  - name: "🎮 GAME-TEST"
+    type: select
+    proxies:
+      - 🎮 TEST-DE-FRA
+      - 🎮 TEST-PL-WAW
+      - 🎮 TEST-NL-AMS
+      - 🎮 TEST-FI-HEL
+      - 🧪 TEST-SS
+      - 🧪 TEST-HY
 
 #################################
 # RULES

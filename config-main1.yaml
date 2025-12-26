@@ -1,0 +1,75 @@
+mixed-port: 7890
+allow-lan: true
+mode: rule
+log-level: warning
+external-controller: 127.0.0.1:9090
+
+proxy-providers:
+  black:
+    type: http
+    url: https://your-vpn-source-url/black.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
+  white:
+    type: http
+    url: https://your-vpn-source-url/white.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
+proxy-groups:
+  - name: 🎮 GAME
+    type: select
+    use:
+      - black
+      - white
+    filter: "(Germany|Netherlands|Finland|Poland)"
+    dynamic: true
+    sort-by: ping  # Сортировка по пингу
+    max-ping: 200  # Максимальный пинг 200 мс
+
+  - name: 🤖 CHATGPT
+    type: select
+    use:
+      - black
+      - white
+    filter: "(Germany|Netherlands|Finland|Canada)"
+    dynamic: true
+    sort-by: ping  # Сортировка по пингу
+    max-ping: 200  # Максимальный пинг 200 мс
+
+  - name: 🌍 INTERNET
+    type: url-test
+    use:
+      - black
+      - white
+    filter: "(Germany|Netherlands|Poland|Finland|Canada)"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+
+  - name: 🔁 FALLBACK
+    type: fallback
+    use:
+      - black
+      - white
+    filter: "(Germany|Netherlands|Finland)"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+
+rules:
+  - DOMAIN-SUFFIX,roblox.com,🎮 GAME
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
+
+  - DOMAIN-SUFFIX,roblox.com,🎮 GAME
+  - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAME
+
+  - GEOIP,RU,DIRECT
+  - MATCH,🌍 INTERNET

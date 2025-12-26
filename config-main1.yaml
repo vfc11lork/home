@@ -48,8 +48,9 @@ proxy-providers:
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
-      interval: 180
-      max-failed-times: 3
+      interval: 300
+      max-failed-times: 5
+      latency-cutoff: 300  # Максимум 300 мс
 
   WHITE:
     type: http
@@ -59,8 +60,9 @@ proxy-providers:
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
-      interval: 180
-      max-failed-times: 3
+      interval: 300
+      max-failed-times: 5
+      latency-cutoff: 300  # Максимум 300 мс
 
   FINLAND:
     type: http
@@ -70,8 +72,9 @@ proxy-providers:
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
-      interval: 180
-      max-failed-times: 3
+      interval: 300
+      max-failed-times: 5
+      latency-cutoff: 300  # Максимум 300 мс
 
 #################################
 # Proxy Groups
@@ -83,7 +86,7 @@ proxy-groups:
       - BLACK
       - WHITE
       - FINLAND
-    filter: "(Germany|Netherlands|Poland|Finland)"
+    filter: "(Poland|Finland|Germany|Latvia|Lithuania)"
     url: http://www.gstatic.com/generate_204
     interval: 120
     tolerance: 25
@@ -96,7 +99,7 @@ proxy-groups:
       - WHITE
       - FINLAND
       - BLACK
-    filter: "(Germany|Netherlands|Finland|Canada)"
+    filter: "(Poland|Finland|Germany|Canada)"
     url: http://www.gstatic.com/generate_204
     interval: 180
 
@@ -106,7 +109,7 @@ proxy-groups:
       - WHITE
       - BLACK
       - FINLAND
-    filter: "(Germany|Netherlands|Poland|Finland)"
+    filter: "(Poland|Finland|Germany|Latvia|Lithuania)"
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 40
@@ -118,7 +121,7 @@ proxy-groups:
       - WHITE
       - FINLAND
       - BLACK
-    filter: "(Germany|Netherlands|Finland)"
+    filter: "(Poland|Finland|Germany|Canada)"
     url: http://www.gstatic.com/generate_204
     interval: 300
 

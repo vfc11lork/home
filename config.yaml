@@ -38,6 +38,12 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 
+      proxy-groups:
+  - name: AUTO
+    type: select
+    use:
+      - BLACK
+
 rules:
   - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT

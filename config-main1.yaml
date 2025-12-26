@@ -1,47 +1,42 @@
-mixed-port: 7890
-allow-lan: true
-mode: rule
-log-level: warning
-external-controller: 127.0.0.1:9090
-
 proxy-groups:
-  - name: 🎮 GAME
+  - name: "🎮 GAME"
     type: select
     use:
       - BLACK
       - WHITE
-    filter: "(Germany|Poland|Lithuania|Finland|Estonia|Latvia|Sweden)"  # Добавляем новые страны для Roblox
+    filter: "(Poland|Finland|Germany)"
     disable-udp: false
 
-  - name: 🤖 CHATGPT
+  - name: "🤖 CHATGPT"
     type: select
     use:
       - BLACK
       - WHITE
-    filter: "(Germany|Netherlands|Finland|Canada|Estonia|Lithuania|Sweden)"  # Новые страны для ChatGPT
+    filter: "(Poland|Finland|Germany)"
+    disable-udp: false
 
-  - name: 🌍 INTERNET
+  - name: "🌍 INTERNET"
     type: url-test
     use:
       - BLACK
       - WHITE
-    filter: "(Germany|Netherlands|Poland|Finland|Estonia|Latvia|Sweden)"  # Добавлены новые страны для интернета
+    filter: "(Poland|Finland|Germany)"
     url: http://www.gstatic.com/generate_204
     interval: 300
 
-  - name: 🔁 FALLBACK
+  - name: "🔁 FALLBACK"
     type: fallback
     use:
       - BLACK
       - WHITE
-    filter: "(Germany|Netherlands|Finland|Estonia|Lithuania|Latvia|Sweden)"
+    filter: "(Poland|Finland|Germany)"
     url: http://www.gstatic.com/generate_204
     interval: 300
 
 proxy-providers:
   BLACK:
     type: http
-    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/BLACK_VLESS_RUS.txt
+    url: https://raw.githubusercontent.com/...
     interval: 3600
     path: ./providers/black.yaml
     health-check:
@@ -51,7 +46,7 @@ proxy-providers:
 
   WHITE:
     type: http
-    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
+    url: https://raw.githubusercontent.com/...
     interval: 3600
     path: ./providers/white.yaml
     health-check:
@@ -60,18 +55,9 @@ proxy-providers:
       interval: 300
 
 rules:
-  # ChatGPT
   - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
-  - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
-  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
-
-  # Game (Roblox)
   - DOMAIN-SUFFIX,roblox.com,🎮 GAME
   - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAME
-
-  # Direct access to Russia
   - GEOIP,RU,DIRECT
-
-  # Default fallback (Internet)
   - MATCH,🌍 INTERNET

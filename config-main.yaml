@@ -1,0 +1,53 @@
+mixed-port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+
+# ---------- PROVIDERS ----------
+proxy-providers:
+  black:
+    type: http
+    url: https://raw.githubusercontent.com/vfc11lork/home/main/BLACK_VLESS_RUS.txt
+    interval: 3600
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
+# ---------- GROUPS ----------
+proxy-groups:
+  - name: 🌍 EU-FAST
+    type: url-test
+    use:
+      - black
+    filter: "(Finland|Germany|Netherlands|Poland|Estonia)"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+
+  - name: 🎮 GAME
+    type: select
+    proxies:
+      - 🌍 EU-FAST
+
+  - name: 🤖 CHATGPT
+    type: select
+    proxies:
+      - 🌍 EU-FAST
+
+  - name: 🧭 DEFAULT
+    type: select
+    proxies:
+      - 🌍 EU-FAST
+
+# ---------- RULES ----------
+rules:
+  - DOMAIN-SUFFIX,roblox.com,🎮 GAME
+  - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAME
+
+  - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
+
+  - GEOIP,RU,DIRECT
+  - MATCH,🧭 DEFAULT

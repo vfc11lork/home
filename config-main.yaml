@@ -1,53 +1,70 @@
 mixed-port: 7890
 allow-lan: true
 mode: rule
-log-level: info
+log-level: warning
+external-controller: 127.0.0.1:9090
 
-# ---------- PROVIDERS ----------
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+
 proxy-providers:
-  black:
+  BLACK:
     type: http
-    url: https://raw.githubusercontent.com/vfc11lork/home/main/BLACK_VLESS_RUS.txt
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/BLACK_VLESS_RUS.txt
     interval: 3600
+    path: ./providers/black.yaml
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
       interval: 300
 
-# ---------- GROUPS ----------
-proxy-groups:
-  - name: 🌍 EU-FAST
-    type: url-test
-    use:
-      - black
-    filter: "(Finland|Germany|Netherlands|Poland|Estonia)"
-    url: http://www.gstatic.com/generate_204
-    interval: 300
+  WHITE:
+    type: http
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
+    interval: 3600
+    path: ./providers/white.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
 
+proxy-groups:
   - name: 🎮 GAME
     type: select
-    proxies:
-      - 🌍 EU-FAST
+    use:
+      - BLACK
+      - WHITE
+    filter: "(Poland|Finland|Germany|Netherlands)"
 
   - name: 🤖 CHATGPT
     type: select
-    proxies:
-      - 🌍 EU-FAST
+    use:
+      - BLACK
+      - WHITE
+    filter: "(Netherlands|Finland|Germany|Canada)"
 
-  - name: 🧭 DEFAULT
-    type: select
-    proxies:
-      - 🌍 EU-FAST
+  - name: 🌍 INTERNET
+    type: url-test
+    use:
+      - BLACK
+      - WHITE
+    filter: "(Poland|Finland|Germany|Netherlands|Canada)"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
 
-# ---------- RULES ----------
 rules:
-  - DOMAIN-SUFFIX,roblox.com,🎮 GAME
-  - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAME
-
   - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
 
+  - DOMAIN-SUFFIX,roblox.com,🎮 GAME
+  - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAME
+
   - GEOIP,RU,DIRECT
-  - MATCH,🧭 DEFAULT
+  - MATCH,🌍 INTERNET

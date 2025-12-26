@@ -4,72 +4,74 @@ mode: rule
 log-level: warning
 external-controller: 127.0.0.1:9090
 
-proxy-providers:
-  black:
-    type: http
-    url: https://your-vpn-source-url/black.yaml
-    interval: 3600
-    health-check:
-      enable: true
-      url: http://www.gstatic.com/generate_204
-      interval: 300
-
-  white:
-    type: http
-    url: https://your-vpn-source-url/white.yaml
-    interval: 3600
-    health-check:
-      enable: true
-      url: http://www.gstatic.com/generate_204
-      interval: 300
-
 proxy-groups:
   - name: 🎮 GAME
     type: select
     use:
-      - black
-      - white
-    filter: "(Germany|Netherlands|Finland|Poland)"
-    dynamic: true
-    sort-by: ping  # Сортировка по пингу
-    max-ping: 200  # Максимальный пинг 200 мс
+      - BLACK
+      - WHITE
+    filter: "(Germany|Poland|Lithuania|Finland|Estonia|Latvia|Sweden)"  # Добавляем новые страны для Roblox
+    disable-udp: false
 
   - name: 🤖 CHATGPT
     type: select
     use:
-      - black
-      - white
-    filter: "(Germany|Netherlands|Finland|Canada)"
-    dynamic: true
-    sort-by: ping  # Сортировка по пингу
-    max-ping: 200  # Максимальный пинг 200 мс
+      - BLACK
+      - WHITE
+    filter: "(Germany|Netherlands|Finland|Canada|Estonia|Lithuania|Sweden)"  # Новые страны для ChatGPT
 
   - name: 🌍 INTERNET
     type: url-test
     use:
-      - black
-      - white
-    filter: "(Germany|Netherlands|Poland|Finland|Canada)"
+      - BLACK
+      - WHITE
+    filter: "(Germany|Netherlands|Poland|Finland|Estonia|Latvia|Sweden)"  # Добавлены новые страны для интернета
     url: http://www.gstatic.com/generate_204
     interval: 300
 
   - name: 🔁 FALLBACK
     type: fallback
     use:
-      - black
-      - white
-    filter: "(Germany|Netherlands|Finland)"
+      - BLACK
+      - WHITE
+    filter: "(Germany|Netherlands|Finland|Estonia|Lithuania|Latvia|Sweden)"
     url: http://www.gstatic.com/generate_204
     interval: 300
 
+proxy-providers:
+  BLACK:
+    type: http
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/BLACK_VLESS_RUS.txt
+    interval: 3600
+    path: ./providers/black.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
+  WHITE:
+    type: http
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
+    interval: 3600
+    path: ./providers/white.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
 rules:
-  - DOMAIN-SUFFIX,roblox.com,🎮 GAME
+  # ChatGPT
+  - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
 
+  # Game (Roblox)
   - DOMAIN-SUFFIX,roblox.com,🎮 GAME
   - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAME
 
+  # Direct access to Russia
   - GEOIP,RU,DIRECT
+
+  # Default fallback (Internet)
   - MATCH,🌍 INTERNET

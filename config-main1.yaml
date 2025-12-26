@@ -1,38 +1,44 @@
-proxy-groups:
-  - name: "🎮 GAME"
-    type: select
-    use:
-      - BLACK
-      - WHITE
-    filter: "(Poland|Finland|Germany)"
-    disable-udp: false
+port: 7890
+socks-port: 7891
+mixed-port: 7893
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: false
 
-  - name: "🤖 CHATGPT"
-    type: select
-    use:
-      - BLACK
-      - WHITE
-    filter: "(Poland|Finland|Germany)"
-    disable-udp: false
+external-controller: 127.0.0.1:9090
 
-  - name: "🌍 INTERNET"
-    type: url-test
-    use:
-      - BLACK
-      - WHITE
-    filter: "(Poland|Finland|Germany)"
-    url: http://www.gstatic.com/generate_204
-    interval: 300
+#################################
+# DNS
+#################################
+dns:
+  enable: true
+  ipv6: false
+  listen: 0.0.0.0:1053
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
 
-  - name: "🔁 FALLBACK"
-    type: fallback
-    use:
-      - BLACK
-      - WHITE
-    filter: "(Poland|Finland|Germany)"
-    url: http://www.gstatic.com/generate_204
-    interval: 300
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
 
+  nameserver:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+  fallback-filter:
+    geoip: true
+    geoip-code: RU
+    ipcidr:
+      - 240.0.0.0/4
+
+#################################
+# Proxy Providers
+#################################
 proxy-providers:
   BLACK:
     type: http
@@ -42,7 +48,8 @@ proxy-providers:
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
-      interval: 300
+      interval: 180
+      max-failed-times: 3
 
   WHITE:
     type: http
@@ -52,8 +59,72 @@ proxy-providers:
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
-      interval: 300
+      interval: 180
+      max-failed-times: 3
 
+  FINLAND:
+    type: http
+    url: https://raw.githubusercontent.com/...
+    interval: 3600
+    path: ./providers/finland.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 180
+      max-failed-times: 3
+
+#################################
+# Proxy Groups
+#################################
+proxy-groups:
+  - name: "🎮 GAME"
+    type: url-test
+    use:
+      - BLACK
+      - WHITE
+      - FINLAND
+    filter: "(Germany|Netherlands|Poland|Finland)"
+    url: http://www.gstatic.com/generate_204
+    interval: 120
+    tolerance: 25
+    lazy: true
+    disable-udp: false
+
+  - name: "🤖 CHATGPT"
+    type: fallback
+    use:
+      - WHITE
+      - FINLAND
+      - BLACK
+    filter: "(Germany|Netherlands|Finland|Canada)"
+    url: http://www.gstatic.com/generate_204
+    interval: 180
+
+  - name: "🌍 INTERNET"
+    type: url-test
+    use:
+      - WHITE
+      - BLACK
+      - FINLAND
+    filter: "(Germany|Netherlands|Poland|Finland)"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 40
+    lazy: true
+
+  - name: "🔁 FALLBACK"
+    type: fallback
+    use:
+      - WHITE
+      - FINLAND
+      - BLACK
+    filter: "(Germany|Netherlands|Finland)"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+
+#################################
+# Rules
+#################################
 rules:
   - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT

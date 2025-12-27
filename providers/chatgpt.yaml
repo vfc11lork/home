@@ -1,0 +1,24 @@
+proxies: []
+
+proxy-providers:
+  CORE_VLESS:
+    type: http
+    format: auto
+    url: https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt
+    interval: 7200
+    path: ./cache/core_vless.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+  CORE_TROJAN:
+    type: http
+    format: auto
+    url: https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/trojan.txt
+    interval: 7200
+    path: ./cache/core_trojan.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204

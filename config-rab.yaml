@@ -1,0 +1,148 @@
+mixed-port: 7890
+redir-port: 7892
+tproxy-port: 7893
+
+allow-lan: true
+bind-address: "*"
+mode: rule
+log-level: info
+ipv6: false
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+external-controller: 127.0.0.1:9090
+secret: ""
+
+unified-delay: true
+tcp-concurrent: true
+find-process-mode: strict
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080]
+    TLS:
+      ports: [443, 8443]
+  force-domain:
+    - "+.roblox.com"
+    - "+.openai.com"
+
+#################################
+# DNS
+#################################
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+
+  fake-ip-filter:
+    - "*.lan"
+    - "*.local"
+    - "+.roblox.com"
+    - "+.openai.com"
+
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+  proxy-server-nameserver:
+    - https://1.1.1.1/dns-query
+
+#################################
+# PROXY PROVIDERS
+#################################
+proxy-providers:
+
+  GAMING:
+    type: http
+    path: ./providers/gaming.yaml
+    url: https://raw.githubusercontent.com/vfc11lork/home/main/providers/gaming.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+  CHATGPT:
+    type: http
+    path: ./providers/chatgpt.yaml
+    url: https://raw.githubusercontent.com/vfc11lork/home/main/providers/chatgpt.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+  FALLBACK:
+    type: http
+    path: ./providers/fallback.yaml
+    url: https://raw.githubusercontent.com/vfc11lork/home/main/providers/fallback.yaml
+    interval: 7200
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+
+#################################
+# PROXY GROUPS
+#################################
+proxy-groups:
+
+  - name: 🎮 Roblox
+    type: url-test
+    interval: 300
+    tolerance: 200
+    url: http://www.gstatic.com/generate_204
+    use:
+      - GAMING
+
+  - name: 🤖 ChatGPT
+    type: fallback
+    interval: 300
+    url: http://www.gstatic.com/generate_204
+    use:
+      - CHATGPT
+
+  - name: ♻️ Backup
+    type: url-test
+    interval: 600
+    tolerance: 300
+    url: http://www.gstatic.com/generate_204
+    use:
+      - FALLBACK
+
+  - name: 🚦 FINAL
+    type: select
+    proxies:
+      - 🎮 Roblox
+      - 🤖 ChatGPT
+      - ♻️ Backup
+      - DIRECT
+
+#################################
+# RULES
+#################################
+rules:
+  # Roblox
+  - DOMAIN-SUFFIX,roblox.com,🎮 Roblox
+  - DOMAIN-SUFFIX,rbxcdn.com,🎮 Roblox
+
+  # ChatGPT / OpenAI
+  - DOMAIN-SUFFIX,openai.com,🤖 ChatGPT
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 ChatGPT
+
+  # Local
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT
+
+  # Default
+  - MATCH,🚦 FINAL

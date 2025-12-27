@@ -1,0 +1,155 @@
+version: 1
+description: >
+  Raw VPN sources registry.
+  Sources are treated as raw material, never used directly by clients.
+  All data passes normalize → filter → scoring → tiers → service profiles.
+
+# =========================
+# ACTIVE SOURCES (MVP)
+# =========================
+active:
+
+  # -------------------------
+  # PRIORITY A — MASSIVE RAW
+  # -------------------------
+
+  - id: epodonios_all
+    family: github
+    priority: A1
+    role: raw_massive
+    weight: 0.70
+    formats: [vless, trojan, ss, vmess]
+    urls:
+      - https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt
+    notes:
+      - "Primary massive raw dump"
+      - "High noise, high value"
+
+  - id: epodonios_vless
+    family: github
+    priority: A2
+    role: protocol_specific
+    weight: 0.40
+    formats: [vless]
+    urls:
+      - https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt
+    notes:
+      - "Protocol-specific split"
+
+  - id: epodonios_trojan
+    family: github
+    priority: A2
+    role: protocol_specific
+    weight: 0.40
+    formats: [trojan]
+    urls:
+      - https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/trojan.txt
+
+  - id: zengfr_all
+    family: github
+    priority: A1
+    role: raw_massive
+    weight: 0.65
+    formats: [vless, trojan, ss]
+    urls:
+      - https://raw.githubusercontent.com/zengfr/free-vpn-subscribe/main/vpn_sub_.txt
+    notes:
+      - "Aggregator of aggregators"
+
+  - id: zengfr_vless
+    family: github
+    priority: A2
+    role: protocol_specific
+    weight: 0.40
+    formats: [vless]
+    urls:
+      - https://raw.githubusercontent.com/zengfr/free-vpn-subscribe/main/vpn_sub_vless.txt
+
+  - id: zengfr_trojan
+    family: github
+    priority: A2
+    role: protocol_specific
+    weight: 0.40
+    formats: [trojan]
+    urls:
+      - https://raw.githubusercontent.com/zengfr/free-vpn-subscribe/main/vpn_sub_trojan.txt
+
+  - id: gfpcom_vless
+    family: github
+    priority: A1
+    role: raw_massive
+    weight: 0.60
+    formats: [vless]
+    urls:
+      - https://raw.githubusercontent.com/wiki/gfpcom/free-proxy-list/lists/vless.txt
+
+  - id: gfpcom_trojan
+    family: github
+    priority: A1
+    role: raw_massive
+    weight: 0.60
+    formats: [trojan]
+    urls:
+      - https://raw.githubusercontent.com/wiki/gfpcom/free-proxy-list/lists/trojan.txt
+
+  - id: gfpcom_hy2
+    family: github
+    priority: A2
+    role: experimental_protocol
+    weight: 0.30
+    formats: [hy2]
+    urls:
+      - https://raw.githubusercontent.com/wiki/gfpcom/free-proxy-list/lists/hy2.txt
+    notes:
+      - "Experimental, disabled by default in MVP services"
+
+  - id: goida_githubmirror
+    family: github
+    priority: A1
+    role: auto_generated
+    weight: 0.55
+    formats: [vless, trojan, ss]
+    urls:
+      - https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/main/githubmirror/1.txt
+      - https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/main/githubmirror/2.txt
+      - https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/main/githubmirror/3.txt
+      - https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/main/githubmirror/4.txt
+    notes:
+      - "Auto-updated every few minutes"
+      - "Second-opinion generator"
+
+# =========================
+# RESERVED SOURCES (POST-MVP)
+# =========================
+reserved:
+
+  - id: forcerun
+    family: community
+    priority: B1+
+    role: quality_reference
+    status: reserved
+    activate_after: post-mvp
+    weight: 0.25
+    formats: [vless, trojan, ss]
+    urls:
+      - https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/main/Best-Results/proxies.txt
+      - https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/main/splitted-by-protocol/vless.txt
+      - https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/main/splitted-by-protocol/trojan.txt
+    notes:
+      - "Curated results"
+      - "Latency / availability aware"
+      - "Never used as raw intake"
+
+  - id: clash_curated
+    family: community
+    priority: B1
+    role: curated_reference
+    status: reserved
+    activate_after: post-mvp
+    formats: [clash]
+    urls:
+      - https://raw.githubusercontent.com/mfuu/v2ray/master/clash.yaml
+      - https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml
+    notes:
+      - "Quality comparison only"
+      - "Requires normalize from Clash format"

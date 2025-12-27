@@ -1,3 +1,6 @@
+#################################
+# BASIC
+#################################
 mixed-port: 7890
 redir-port: 7892
 tproxy-port: 7893
@@ -19,6 +22,9 @@ unified-delay: true
 tcp-concurrent: true
 find-process-mode: strict
 
+#################################
+# SNIFFER
+#################################
 sniffer:
   enable: true
   sniff:
@@ -59,37 +65,52 @@ dns:
 
 #################################
 # PROXY PROVIDERS
+# (ТОЛЬКО ЗДЕСЬ!)
 #################################
 proxy-providers:
 
-  GAMING:
+  GH_DE:
     type: http
-    path: ./providers/gaming.yaml
-    url: https://raw.githubusercontent.com/vfc11lork/home/main/providers/gaming.yaml
+    format: auto
+    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Germany.txt
     interval: 3600
+    path: ./providers/gh_de.yaml
     health-check:
       enable: true
       interval: 300
       url: http://www.gstatic.com/generate_204
 
-  CHATGPT:
+  GH_NL:
     type: http
-    path: ./providers/chatgpt.yaml
-    url: https://raw.githubusercontent.com/vfc11lork/home/main/providers/chatgpt.yaml
+    format: auto
+    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Netherlands.txt
     interval: 3600
+    path: ./providers/gh_nl.yaml
     health-check:
       enable: true
       interval: 300
       url: http://www.gstatic.com/generate_204
 
-  FALLBACK:
+  GH_PL:
     type: http
-    path: ./providers/fallback.yaml
-    url: https://raw.githubusercontent.com/vfc11lork/home/main/providers/fallback.yaml
+    format: auto
+    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Poland.txt
+    interval: 3600
+    path: ./providers/gh_pl.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+  CORE_VLESS:
+    type: http
+    format: auto
+    url: https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt
     interval: 7200
+    path: ./providers/core_vless.yaml
     health-check:
       enable: true
-      interval: 600
+      interval: 300
       url: http://www.gstatic.com/generate_204
 
 #################################
@@ -99,33 +120,38 @@ proxy-groups:
 
   - name: 🎮 Roblox
     type: url-test
+    use:
+      - GH_DE
+      - GH_NL
+      - GH_PL
+    url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 200
-    url: http://www.gstatic.com/generate_204
-    use:
-      - GAMING
 
   - name: 🤖 ChatGPT
     type: fallback
-    interval: 300
-    url: http://www.gstatic.com/generate_204
     use:
-      - CHATGPT
+      - CORE_VLESS
+    url: http://www.gstatic.com/generate_204
+    interval: 300
 
-  - name: ♻️ Backup
+  - name: 🌍 Internet
     type: url-test
+    use:
+      - GH_DE
+      - GH_NL
+      - GH_PL
+      - CORE_VLESS
+    url: http://www.gstatic.com/generate_204
     interval: 600
     tolerance: 300
-    url: http://www.gstatic.com/generate_204
-    use:
-      - FALLBACK
 
   - name: 🚦 FINAL
     type: select
     proxies:
       - 🎮 Roblox
       - 🤖 ChatGPT
-      - ♻️ Backup
+      - 🌍 Internet
       - DIRECT
 
 #################################
@@ -140,7 +166,7 @@ rules:
   - DOMAIN-SUFFIX,openai.com,🤖 ChatGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 ChatGPT
 
-  # Local
+  # Local traffic
   - IP-CIDR,127.0.0.0/8,DIRECT
   - IP-CIDR,192.168.0.0/16,DIRECT
 

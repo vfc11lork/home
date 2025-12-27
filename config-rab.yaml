@@ -1,19 +1,15 @@
 # =========================
-# BASIC
+# Clash Meta - main.yaml
 # =========================
+
 mixed-port: 7890
-redir-port: 7892
-tproxy-port: 7893
 allow-lan: true
-bind-address: "*"
 mode: rule
 log-level: info
 ipv6: false
 
 external-controller: 127.0.0.1:9090
 external-ui: ui
-secret: ""
-
 profile:
   store-selected: true
   store-fake-ip: true
@@ -27,78 +23,80 @@ dns:
   ipv6: false
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-  fake-ip-filter:
-    - "*.lan"
-    - "*.local"
-    - "time.*"
-    - "ntp.*"
-    - "localhost"
-    - "connectivitycheck.gstatic.com"
-
   nameserver:
     - 1.1.1.1
     - 8.8.8.8
-
   fallback:
-    - 1.0.0.1
-    - 8.8.4.4
+    - tls://1.0.0.1
+    - tls://8.8.4.4
 
 # =========================
-# TUN
-# =========================
-tun:
-  enable: true
-  stack: system
-  auto-route: true
-  auto-detect-interface: true
-  dns-hijack:
-    - any:53
-
-# =========================
-# PROXY PROVIDERS
+# Proxy Providers
+# (GitHub RAW only)
 # =========================
 proxy-providers:
 
-  CLEAN_CLASH:
+  CORE_VLESS:
     type: http
-    format: yaml
-    url: https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/BLACK_VLESS_RUS.txt
     interval: 3600
-    path: ./providers/clean_clash.yaml
+    path: ./providers/core_vless.yaml
     health-check:
       enable: true
-      interval: 300
       url: http://www.gstatic.com/generate_204
+      interval: 300
 
-  CLEAN_V2RAY:
+  GH_DE:
     type: http
-    format: auto
-    url: https://raw.githubusercontent.com/yanue/V2rayU/master/serverlist/subscription
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/countries/Germany.txt
     interval: 3600
-    path: ./providers/clean_v2ray.yaml
+    path: ./providers/gh_de.yaml
     health-check:
       enable: true
-      interval: 300
       url: http://www.gstatic.com/generate_204
+      interval: 300
+
+  GH_NL:
+    type: http
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/countries/Netherlands.txt
+    interval: 3600
+    path: ./providers/gh_nl.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
+  GH_PL:
+    type: http
+    url: https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/countries/Poland.txt
+    interval: 3600
+    path: ./providers/gh_pl.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
 
 # =========================
-# PROXY GROUPS
+# Proxy Groups
 # =========================
 proxy-groups:
 
   - name: 🚀 AUTO
     type: url-test
     use:
-      - CLEAN_CLASH
-      - CLEAN_V2RAY
+      - CORE_VLESS
+      - GH_DE
+      - GH_NL
+      - GH_PL
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
 
-  - name: 🎮 GAMING
+  - name: 🎮 ROBLOX
     type: url-test
     use:
-      - CLEAN_CLASH
+      - GH_DE
+      - GH_PL
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 30
@@ -106,47 +104,36 @@ proxy-groups:
   - name: 🤖 CHATGPT
     type: select
     use:
-      - CLEAN_CLASH
-      - CLEAN_V2RAY
+      - GH_DE
+      - GH_NL
 
   - name: 🌍 BROWSING
     type: select
-    use:
-      - CLEAN_CLASH
-      - CLEAN_V2RAY
-
-  - name: 🛑 BLOCK
-    type: reject
+    proxies:
+      - 🚀 AUTO
+      - 🤖 CHATGPT
+      - 🎮 ROBLOX
+      - DIRECT
 
 # =========================
-# RULES
+# Rules
 # =========================
 rules:
-
-  # ChatGPT / OpenAI
+  # ChatGPT
   - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
   - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
-  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
 
   # Roblox
-  - DOMAIN-SUFFIX,roblox.com,🎮 GAMING
-  - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAMING
+  - DOMAIN-SUFFIX,roblox.com,🎮 ROBLOX
+  - DOMAIN-SUFFIX,rbxcdn.com,🎮 ROBLOX
 
-  # Google
-  - DOMAIN-SUFFIX,google.com,🌍 BROWSING
-  - DOMAIN-SUFFIX,googleapis.com,🌍 BROWSING
-  - DOMAIN-SUFFIX,gstatic.com,🌍 BROWSING
-
-  # Telegram
-  - DOMAIN-SUFFIX,telegram.org,🌍 BROWSING
-  - DOMAIN-SUFFIX,t.me,🌍 BROWSING
+  # Ads / trackers
+  - DOMAIN-SUFFIX,doubleclick.net,REJECT
+  - DOMAIN-SUFFIX,ads.google.com,REJECT
 
   # Local
-  - DOMAIN-SUFFIX,local,DIRECT
-  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
-  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
-  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - GEOIP,RU,DIRECT
 
   # Default
-  - MATCH,🚀 AUTO
+  - MATCH,🌍 BROWSING

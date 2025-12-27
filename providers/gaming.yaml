@@ -1,0 +1,35 @@
+proxies: []
+
+proxy-providers:
+  GITHUB_EU:
+    type: http
+    format: auto
+    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Germany.txt
+    interval: 3600
+    path: ./cache/github_de.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+  GITHUB_NL:
+    type: http
+    format: auto
+    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Netherlands.txt
+    interval: 3600
+    path: ./cache/github_nl.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+  GITHUB_PL:
+    type: http
+    format: auto
+    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Poland.txt
+    interval: 3600
+    path: ./cache/github_pl.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204

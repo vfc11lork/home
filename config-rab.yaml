@@ -1,174 +1,152 @@
-#################################
+# =========================
 # BASIC
-#################################
+# =========================
 mixed-port: 7890
 redir-port: 7892
 tproxy-port: 7893
-
 allow-lan: true
 bind-address: "*"
 mode: rule
 log-level: info
 ipv6: false
 
+external-controller: 127.0.0.1:9090
+external-ui: ui
+secret: ""
+
 profile:
   store-selected: true
   store-fake-ip: true
 
-external-controller: 127.0.0.1:9090
-secret: ""
-
-unified-delay: true
-tcp-concurrent: true
-find-process-mode: strict
-
-#################################
-# SNIFFER
-#################################
-sniffer:
-  enable: true
-  sniff:
-    HTTP:
-      ports: [80, 8080]
-    TLS:
-      ports: [443, 8443]
-  force-domain:
-    - "+.roblox.com"
-    - "+.openai.com"
-
-#################################
+# =========================
 # DNS
-#################################
+# =========================
 dns:
   enable: true
   listen: 0.0.0.0:1053
   ipv6: false
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-
   fake-ip-filter:
     - "*.lan"
     - "*.local"
-    - "+.roblox.com"
-    - "+.openai.com"
+    - "time.*"
+    - "ntp.*"
+    - "localhost"
+    - "connectivitycheck.gstatic.com"
 
-  default-nameserver:
+  nameserver:
     - 1.1.1.1
     - 8.8.8.8
 
-  nameserver:
-    - https://1.1.1.1/dns-query
-    - https://8.8.8.8/dns-query
+  fallback:
+    - 1.0.0.1
+    - 8.8.4.4
 
-  proxy-server-nameserver:
-    - https://1.1.1.1/dns-query
+# =========================
+# TUN
+# =========================
+tun:
+  enable: true
+  stack: system
+  auto-route: true
+  auto-detect-interface: true
+  dns-hijack:
+    - any:53
 
-#################################
+# =========================
 # PROXY PROVIDERS
-# (ТОЛЬКО ЗДЕСЬ!)
-#################################
+# =========================
 proxy-providers:
 
-  GH_DE:
+  CLEAN_CLASH:
     type: http
-    format: auto
-    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Germany.txt
+    format: yaml
+    url: https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml
     interval: 3600
-    path: ./providers/gh_de.yaml
+    path: ./providers/clean_clash.yaml
     health-check:
       enable: true
       interval: 300
       url: http://www.gstatic.com/generate_204
 
-  GH_NL:
+  CLEAN_V2RAY:
     type: http
     format: auto
-    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Netherlands.txt
+    url: https://raw.githubusercontent.com/yanue/V2rayU/master/serverlist/subscription
     interval: 3600
-    path: ./providers/gh_nl.yaml
+    path: ./providers/clean_v2ray.yaml
     health-check:
       enable: true
       interval: 300
       url: http://www.gstatic.com/generate_204
 
-  GH_PL:
-    type: http
-    format: auto
-    url: https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Poland.txt
-    interval: 3600
-    path: ./providers/gh_pl.yaml
-    health-check:
-      enable: true
-      interval: 300
-      url: http://www.gstatic.com/generate_204
-
-  CORE_VLESS:
-    type: http
-    format: auto
-    url: https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt
-    interval: 7200
-    path: ./providers/core_vless.yaml
-    health-check:
-      enable: true
-      interval: 300
-      url: http://www.gstatic.com/generate_204
-
-#################################
+# =========================
 # PROXY GROUPS
-#################################
+# =========================
 proxy-groups:
 
-  - name: 🎮 Roblox
+  - name: 🚀 AUTO
     type: url-test
     use:
-      - GH_DE
-      - GH_NL
-      - GH_PL
+      - CLEAN_CLASH
+      - CLEAN_V2RAY
     url: http://www.gstatic.com/generate_204
     interval: 300
-    tolerance: 200
+    tolerance: 50
 
-  - name: 🤖 ChatGPT
-    type: fallback
-    use:
-      - CORE_VLESS
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-
-  - name: 🌍 Internet
+  - name: 🎮 GAMING
     type: url-test
     use:
-      - GH_DE
-      - GH_NL
-      - GH_PL
-      - CORE_VLESS
+      - CLEAN_CLASH
     url: http://www.gstatic.com/generate_204
-    interval: 600
-    tolerance: 300
+    interval: 300
+    tolerance: 30
 
-  - name: 🚦 FINAL
+  - name: 🤖 CHATGPT
     type: select
-    proxies:
-      - 🎮 Roblox
-      - 🤖 ChatGPT
-      - 🌍 Internet
-      - DIRECT
+    use:
+      - CLEAN_CLASH
+      - CLEAN_V2RAY
 
-#################################
+  - name: 🌍 BROWSING
+    type: select
+    use:
+      - CLEAN_CLASH
+      - CLEAN_V2RAY
+
+  - name: 🛑 BLOCK
+    type: reject
+
+# =========================
 # RULES
-#################################
+# =========================
 rules:
-  # Roblox
-  - DOMAIN-SUFFIX,roblox.com,🎮 Roblox
-  - DOMAIN-SUFFIX,rbxcdn.com,🎮 Roblox
 
   # ChatGPT / OpenAI
-  - DOMAIN-SUFFIX,openai.com,🤖 ChatGPT
-  - DOMAIN-SUFFIX,chatgpt.com,🤖 ChatGPT
+  - DOMAIN-SUFFIX,openai.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,oaistatic.com,🤖 CHATGPT
+  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 CHATGPT
 
-  # Local traffic
-  - IP-CIDR,127.0.0.0/8,DIRECT
-  - IP-CIDR,192.168.0.0/16,DIRECT
+  # Roblox
+  - DOMAIN-SUFFIX,roblox.com,🎮 GAMING
+  - DOMAIN-SUFFIX,rbxcdn.com,🎮 GAMING
+
+  # Google
+  - DOMAIN-SUFFIX,google.com,🌍 BROWSING
+  - DOMAIN-SUFFIX,googleapis.com,🌍 BROWSING
+  - DOMAIN-SUFFIX,gstatic.com,🌍 BROWSING
+
+  # Telegram
+  - DOMAIN-SUFFIX,telegram.org,🌍 BROWSING
+  - DOMAIN-SUFFIX,t.me,🌍 BROWSING
+
+  # Local
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
 
   # Default
-  - MATCH,🚦 FINAL
+  - MATCH,🚀 AUTO
